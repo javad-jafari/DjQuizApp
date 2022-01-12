@@ -33,6 +33,7 @@ class AllQustionSerializer(serializers.ModelSerializer):
     difficulty = serializers.CharField(source='get_difficulty_display')
 
     def create(self, validated_data):
+  
         obj = Question.objects.create(
             technique = validated_data['get_technique_display'],
             difficulty = validated_data['get_technique_display'],

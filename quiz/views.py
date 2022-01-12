@@ -3,10 +3,7 @@ from rest_framework.views import APIView
 from quiz.models import Question, Quizzes
 from quiz.serializers import AllQuizSerializer, AllQustionSerializer, QustionSerializer
 from rest_framework.response import Response
-from rest_framework import permissions
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-
+from quiz.permissions import IsOwnerOrReadOnlyQueston
 
 
 class AllQuiz(generics.ListAPIView):
@@ -16,14 +13,14 @@ class AllQuiz(generics.ListAPIView):
 
 
 class AllQustion(generics.ListCreateAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnlyQueston]
     queryset = Question.objects.all()
     serializer_class = AllQustionSerializer
 
 
 
 class QustionDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnlyQueston]
     queryset = Question.objects.all()
     serializer_class = AllQustionSerializer
 
