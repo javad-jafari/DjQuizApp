@@ -16,11 +16,11 @@ class Quizzes(models.Model):
     title = models.CharField(max_length=255, default=_(
         "New Quiz"), verbose_name=_("Quiz Title"))
     category = models.ForeignKey(
-        Category, default=1, on_delete=models.DO_NOTHING)
+        Category, default=1, on_delete=models.SET_NULL, null=True)
     date_created = models.DateTimeField(auto_now_add=True)
 
     creator = models.ForeignKey(
-        User, on_delete=models.DO_NOTHING)
+        User, on_delete=models.SET_NULL, null=True)
 
     class Meta:
         verbose_name = _("Quiz")
@@ -61,7 +61,7 @@ class Question(Updated):
     )
 
     quiz = models.ForeignKey(
-        Quizzes, related_name='question', on_delete=models.DO_NOTHING)
+        Quizzes, related_name='question', on_delete=models.SET_NULL, null=True)
     technique = models.IntegerField(
         choices=TYPE, default=0, verbose_name=_("Type of Question"))
     title = models.CharField(max_length=255, verbose_name=_("Title"))
@@ -71,6 +71,7 @@ class Question(Updated):
         auto_now_add=True, verbose_name=_("Date Created"))
     is_active = models.BooleanField(
         default=False, verbose_name=_("Active Status"))
+    image = models.ImageField(upload_to='quiz/questions', null=True, blank=True)
 
     def __str__(self):
         return self.title
@@ -84,13 +85,13 @@ class Answer(Updated):
         ordering = ['id']
 
     question = models.ForeignKey(
-        Question, related_name='answer', on_delete=models.DO_NOTHING)
+        Question, related_name='answer', on_delete=models.SET_NULL, null=True)
     answer_text = models.CharField(
         max_length=255, verbose_name=_("Answer Text"))
     is_right = models.BooleanField(default=False)
 
     user = models.ForeignKey(
-        User, on_delete=models.DO_NOTHING)
+        User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.answer_text

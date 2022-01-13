@@ -1,5 +1,9 @@
+from django.core.exceptions import NON_FIELD_ERRORS
 from quiz.models import Answer, Quizzes , Question
 from rest_framework import serializers
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class QustionSerializer(serializers.ModelSerializer):
@@ -13,12 +17,7 @@ class AnswerSerializer(serializers.ModelSerializer):
         model = Answer
         fields = '__all__'
 
-class AllQuizSerializer(serializers.ModelSerializer):
 
-    question = QustionSerializer(many = True)
-    class Meta:
-        model = Quizzes
-        fields = '__all__'
 
 class AllQustionSerializer(serializers.ModelSerializer):
 
@@ -42,4 +41,66 @@ class AllQustionSerializer(serializers.ModelSerializer):
             quiz = validated_data['quiz']
             )
         return obj
-        
+
+
+
+class AllQuizSerializer(serializers.ModelSerializer):
+
+    question = QustionSerializer(many = True)
+    class Meta:
+        model = Quizzes
+        fields ='__all__'
+
+class QuizCreatorSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Quizzes
+        fields ='__all__'
+
+
+class UserSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = User
+        fields ='__all__'
+
+class RegisterSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = User
+        fields ='__all__'
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+    
+
+    def create(self, validated_data):
+        password = validated_data.pop('password',None)
+        instance = self.Meta.model(**validated_data)
+
+        if password is not None:
+            instance.set_password(password)
+        instance.save()
+
+        return instance
+
+
+class AdminRegisterSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = User
+        fields ='__all__'
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+    
+
+    def create(self, validated_data):
+        user = User.objects.create(**validated_data)
+        user.set_password(validated_data['password'])
+        user.is_staff = True
+        user.is_superuser = True
+        user.save()
+
+
+        return user

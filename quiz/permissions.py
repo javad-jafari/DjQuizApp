@@ -12,9 +12,10 @@ class IsOwnerOrReadOnlyQueston(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         else :
-            quiz = Quizzes.objects.get(id=request.data['quiz'])            
-            if quiz.creator == request.user:
-                return True
+            if request.data:
+                quiz = Quizzes.objects.get(id=request.data['quiz'])            
+                if quiz.creator == request.user:
+                    return True
             return False
 
 
@@ -25,3 +26,13 @@ class IsOwnerOrReadOnlyQueston(permissions.BasePermission):
 
         return obj.quiz.creator == request.user
 
+
+
+class IsAdminOrOwnerOrReadOnly(permissions.BasePermission):
+    
+    def has_object_permission(self, request, view, obj):
+
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return obj == request.user
