@@ -20,7 +20,7 @@ class Quizzes(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
 
     creator = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True)
+        User, on_delete=models.PROTECT)
 
     class Meta:
         verbose_name = _("Quiz")

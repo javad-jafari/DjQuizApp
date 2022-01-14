@@ -82,3 +82,4 @@ class AdminRegister(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = AdminRegisterSerializer
 
+

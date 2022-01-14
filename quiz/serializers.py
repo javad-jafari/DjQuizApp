@@ -3,6 +3,7 @@ from quiz.models import Answer, Quizzes , Question
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
+
 User = get_user_model()
 
 
@@ -55,27 +56,58 @@ class QuizCreatorSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Quizzes
-        fields ='__all__'
+        exclude =("creator",)
+    
+    def create(self, validated_data):
+
+        user = self.context["request"].user
+        instance = self.Meta.model(**validated_data)
+        instance.creator = user
+        instance.save()
+
+        return instance
+
+
+
+
 
 
 class UserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields ='__all__'
+        exclude = ["password","username"]
+
+
+
+
+
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     
+    confirm_password = serializers.CharField(write_only=True)
+
     class Meta:
         model = User
-        fields ='__all__'
+        fields =["username", "password","confirm_password"]
+
         extra_kwargs = {
             'password': {'write_only': True}
         }
     
+    def validate(self,data):
+
+        if data["password"] != data["confirm_password"]:
+            raise serializers.ValidationError("Password confirme is incorrect")
+
+        if len(data["password"]) < 5:
+            raise serializers.ValidationError("password len must be bigger than 5")
+        return data
 
     def create(self, validated_data):
         password = validated_data.pop('password',None)
+        validated_data.pop('confirm_password',None)
         instance = self.Meta.model(**validated_data)
 
         if password is not None:
@@ -85,22 +117,41 @@ class RegisterSerializer(serializers.ModelSerializer):
         return instance
 
 
+
+
 class AdminRegisterSerializer(serializers.ModelSerializer):
+
+    confirm_password = serializers.CharField(write_only=True)
     
     class Meta:
         model = User
-        fields ='__all__'
+        fields =["username", "password", "confirm_password"]
         extra_kwargs = {
             'password': {'write_only': True}
         }
     
 
+    def validate(self,data):
+
+        if data["password"] != data["confirm_password"]:
+            raise serializers.ValidationError("Password confirme is incorrect")
+
+        if len(data["password"]) < 5:
+            raise serializers.ValidationError("password len must be bigger than 5")
+        return data
+
     def create(self, validated_data):
-        user = User.objects.create(**validated_data)
-        user.set_password(validated_data['password'])
-        user.is_staff = True
-        user.is_superuser = True
-        user.save()
+            password = validated_data.pop('password',None)
+            validated_data.pop('confirm_password',None)
 
+            instance = self.Meta.model(**validated_data)
 
-        return user
+            if password is not None:
+                instance.set_password(password)
+            
+            instance.is_staff = True
+            instance.is_superuser = True
+            instance.save()
+
+            return instance
+
