@@ -1,9 +1,13 @@
+from multiprocessing.spawn import import_main_path
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 from quiz.models import Question, Quizzes, Category
+from quiz.serializers import UserSerializer
+
+
 
 CREATE_USER_URL = reverse('register')
 LOGIN_USER_URL = reverse('token_obtain_pair')
@@ -133,3 +137,26 @@ class PrivateUserApiTest(TestCase):
         self.assertIn("title",res.data)
         self.assertNotIn("creator", res.data)
 
+
+
+class  AdminUserTest(TestCase):
+
+    def setUp(self) :
+
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_superuser(
+            username = "admin",
+            password = "admin"
+        )
+        self.client.force_authenticate(user=self.user)
+
+    def test_users_list(self):
+        
+        res = self.client.get(reverse("users"))
+
+        users = get_user_model().objects.all()
+        users_serializer = UserSerializer(users, many=True)
+
+        self.assertTrue(self.user.is_superuser)
+        self.assertTrue(self.user.is_staff)
+        self.assertEqual(res.data, users_serializer.data )

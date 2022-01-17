@@ -1,10 +1,10 @@
-from django.core.exceptions import NON_FIELD_ERRORS
+from email.mime import image
 from quiz.models import Answer, Quizzes , Question
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-
-
+from quiz.models import Question
 User = get_user_model()
+
 
 
 class QustionSerializer(serializers.ModelSerializer):
@@ -32,15 +32,19 @@ class AllQustionSerializer(serializers.ModelSerializer):
     technique = serializers.CharField(source='get_technique_display')
     difficulty = serializers.CharField(source='get_difficulty_display')
 
+
+
     def create(self, validated_data):
-  
+
+        technique =validated_data.pop('get_technique_display')
+        difficulty=validated_data.pop('get_difficulty_display')
+
         obj = Question.objects.create(
-            technique = validated_data['get_technique_display'],
-            difficulty = validated_data['get_technique_display'],
-            title = validated_data['title'],
-            is_active = validated_data['is_active'],
-            quiz = validated_data['quiz']
+            technique = technique,
+            difficulty = difficulty,
+            **validated_data
             )
+
         return obj
 
 

@@ -10,11 +10,11 @@ from rest_framework import permissions
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
+from rest_framework.parsers import FileUploadParser,FormParser,MultiPartParser
 
 User = get_user_model()
 
-class AllQuiz(generics.ListCreateAPIView):
+class AllQuiz(generics.ListAPIView):
     queryset = Quizzes.objects.all()
     serializer_class = AllQuizSerializer
 
@@ -31,6 +31,7 @@ class AllQustion(generics.ListCreateAPIView):
     permission_classes = [IsOwnerOrReadOnlyQueston]
     queryset = Question.objects.all()
     serializer_class = AllQustionSerializer
+    parser_classes = (FormParser, MultiPartParser)
 
 
 
